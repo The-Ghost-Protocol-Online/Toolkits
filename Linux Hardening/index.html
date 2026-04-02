@@ -1,1 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Security Toolkit</title>
 
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Oswald:wght@400;600&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+    --bg-base:       #0b0f1a;
+    --bg-surface:    #111827;
+    --accent-blue:   #1e6db5;
+    --accent-bright: #3b9eff;
+    --text-primary:  #dce6f0;
+    --text-secondary:#7f96b2;
+    --border:        rgba(59,158,255,0.15);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    display: flex;
+    font-family: 'Source Sans 3', sans-serif;
+    background: var(--bg-base);
+    color: var(--text-primary);
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 240px;
+    background: var(--bg-surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 20px 0;
+}
+
+.logo {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.4rem;
+    padding: 0 20px 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+.nav {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.nav button {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    text-align: left;
+    padding: 14px 20px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent;
+}
+
+.nav button:hover {
+    background: rgba(59,158,255,0.08);
+    color: var(--accent-bright);
+}
+
+.nav button.active {
+    background: rgba(59,158,255,0.12);
+    color: var(--accent-bright);
+    border-left: 3px solid var(--accent-bright);
+}
+
+/* Content Area */
+.content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Top bar */
+.topbar {
+    height: 50px;
+    background: rgba(17,24,39,0.85);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+/* Viewer wrapper */
+.intro {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+.intro-title {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1rem;
+    color: var(--accent-bright);
+    margin-bottom: 4px;
+}
+
+.intro-text {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.viewer-wrapper {
+    flex: 1;
+    overflow: hidden;
+}
+
+iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+}
+
+/* Footer */
+.footer {
+    height: 40px;
+    background: var(--bg-surface);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+    <div class="logo">Security Toolkit</div>
+
+    <div class="nav">
+        <button onclick="loadPage('lynis.html', this)" class="active">Lynis Audit</button>
+        <button onclick="loadPage('ufw.html', this)">UFW Firewall</button>
+        <button onclick="loadPage('wazuh.html', this)">Wazuh SIEM</button>
+    </div>
+</div>
+
+<!-- Content -->
+<div class="content">
+    <div class="topbar">Linux Security Toolkit • Audit, Firewall & SIEM Guides</div>
+
+    <div class="intro">
+        <div class="intro-title">Welcome</div>
+        <div class="intro-text">
+            A curated set of practical Linux security guides covering system auditing, firewall configuration, and threat detection.
+            Use the sidebar to navigate between tools and follow step-by-step hardening workflows.
+        </div>
+    </div>
+
+    <div class="viewer-wrapper">
+        <iframe id="viewer" src="lynis.html"></iframe>
+    </div>
+
+    <div class="footer">Linux Security Toolkit • Practical hardening guides for Lynis, UFW & Wazuh</div>
+</div>
+
+<script>
+function loadPage(page, btn) {
+    document.getElementById('viewer').src = page;
+
+    document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+}
+</script>
+
+</body>
+</html>

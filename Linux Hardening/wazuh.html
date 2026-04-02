@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wazuh — Installation Guide</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Oswald:wght@400;500;600&family=Source+Sans+3:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base:       #0b0f1a;
+            --bg-surface:    #111827;
+            --bg-terminal:   #080c14;
+            --accent-blue:   #1e6db5;
+            --accent-bright: #3b9eff;
+            --accent-warn:   #e05c3a;
+            --accent-ok:     #2db37c;
+            --text-primary:  #dce6f0;
+            --text-secondary:#7f96b2;
+            --text-terminal: #58d5c9;
+            --border:        rgba(59,158,255,0.18);
+            --border-dim:    rgba(59,158,255,0.07);
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Source Sans 3', sans-serif; background-color: var(--bg-base); color: var(--text-primary); line-height: 1.75; min-height: 100vh; }
+        body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(59,158,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(59,158,255,0.03) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; z-index: 0; }
+        .page-wrapper { max-width: 100%; margin: 0; padding: 40px 40px 80px; }
+
+        header { border: 1px solid var(--border); background: var(--bg-surface); border-radius: 6px; padding: 36px 40px; margin-bottom: 28px; position: relative; overflow: hidden; }
+        header::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent-blue), var(--accent-bright)); }
+        .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--accent-bright); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 12px; }
+        header h1 { font-family: 'Oswald', sans-serif; font-size: 2.4rem; font-weight: 600; letter-spacing: 0.03em; color: #fff; line-height: 1.1; }
+        header .sub { margin-top: 10px; color: var(--text-secondary); font-weight: 300; font-size: 1.05rem; }
+        .badges { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+        .badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(59,158,255,0.1); border: 1px solid rgba(59,158,255,0.3); border-radius: 4px; padding: 4px 12px; font-family: 'JetBrains Mono', monospace; font-size: 0.73rem; color: var(--accent-bright); }
+        .badge::before { content: '●'; font-size: 0.45rem; }
+
+        .context-card { background: var(--bg-surface); border: 1px solid var(--border-dim); border-radius: 6px; padding: 22px 26px; margin-bottom: 16px; }
+        .context-card h3 { font-family: 'Oswald', sans-serif; font-size: 0.92rem; font-weight: 500; color: var(--accent-bright); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 10px; }
+        .context-card p { font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 8px; }
+        .context-card p:last-child { margin-bottom: 0; }
+
+        .step-card { background: var(--bg-surface); border: 1px solid var(--border-dim); border-radius: 6px; margin-bottom: 16px; overflow: hidden; transition: border-color 0.2s; }
+        .step-card:hover { border-color: var(--border); }
+        .step-header { display: flex; align-items: center; gap: 16px; padding: 20px 24px 0; }
+        .step-num { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; font-weight: 700; color: var(--accent-bright); background: rgba(59,158,255,0.12); border: 1px solid rgba(59,158,255,0.25); border-radius: 4px; padding: 3px 8px; letter-spacing: 0.1em; white-space: nowrap; }
+        .step-header h2 { font-family: 'Oswald', sans-serif; font-size: 1.15rem; font-weight: 500; letter-spacing: 0.04em; color: #e8eef5; }
+        .step-body { padding: 14px 24px 22px; }
+        .step-body p { font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 12px; }
+        .step-body p:last-child { margin-bottom: 0; }
+
+        code { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; color: var(--text-terminal); background: rgba(88,213,201,0.08); padding: 1px 5px; border-radius: 3px; }
+
+        .terminal { background: var(--bg-terminal); border: 1px solid rgba(59,158,255,0.12); border-radius: 6px; margin: 12px 0; overflow: hidden; }
+        .terminal-bar { display: flex; align-items: center; justify-content: space-between; padding: 8px 14px; background: rgba(255,255,255,0.025); border-bottom: 1px solid rgba(59,158,255,0.08); }
+        .t-label { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: #3a5570; text-transform: uppercase; letter-spacing: 0.15em; }
+        .copy-btn { display: flex; align-items: center; gap: 5px; background: none; border: 1px solid rgba(59,158,255,0.18); border-radius: 4px; padding: 3px 10px; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; color: var(--text-secondary); transition: all 0.15s ease; }
+        .copy-btn:hover { background: rgba(59,158,255,0.1); border-color: var(--accent-bright); color: var(--accent-bright); }
+        .copy-btn.copied { background: rgba(45,179,124,0.1); border-color: var(--accent-ok); color: var(--accent-ok); }
+        .terminal-code { padding: 16px 18px; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--text-terminal); line-height: 1.9; white-space: pre; overflow-x: auto; }
+        .cm { color: #344f65; font-style: italic; }
+
+        .note { font-size: 0.85rem; color: #4a6a88; font-style: italic; padding-left: 12px; border-left: 2px solid rgba(59,158,255,0.18); margin-top: 10px; }
+
+        /* Component grid */
+        .component-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 14px; }
+        .comp-item { background: var(--bg-terminal); border: 1px solid rgba(59,158,255,0.09); border-radius: 5px; padding: 14px; }
+        .comp-name { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--text-terminal); margin-bottom: 5px; }
+        .comp-role { font-size: 0.82rem; color: #587590; line-height: 1.45; }
+
+        /* Spec grid */
+        .spec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+        .spec-item { background: var(--bg-terminal); border: 1px solid rgba(59,158,255,0.09); border-radius: 5px; padding: 12px 14px; }
+        .spec-label { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: #3a5570; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+        .spec-value { font-family: 'Oswald', sans-serif; font-size: 1.05rem; color: var(--accent-ok); }
+        .spec-why { font-size: 0.8rem; color: #4a6a88; margin-top: 3px; }
+
+        /* Status line */
+        .status-line { display: flex; align-items: center; gap: 10px; margin-top: 14px; font-size: 0.88rem; color: var(--text-secondary); }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent-ok); box-shadow: 0 0 6px var(--accent-ok); flex-shrink: 0; }
+    </style>
+</head>
+<body>
+<div class="page-wrapper">
+
+    <header>
+        <div class="eyebrow">System Security // SIEM & XDR</div>
+        <h1>Wazuh Setup Guide</h1>
+        <p class="sub">Open-source SIEM, intrusion detection, and compliance monitoring</p>
+        <div class="badges">
+            <span class="badge">Debian / Ubuntu</span>
+            <span class="badge">All-in-One Install</span>
+            <span class="badge">v4.x</span>
+        </div>
+    </header>
+
+    <div class="context-card">
+        <h3>What is Wazuh?</h3>
+        <p>Wazuh is an open-source security platform that combines a <strong style="color:var(--text-primary)">SIEM</strong> (Security Information and Event Management) with <strong style="color:var(--text-primary)">XDR</strong> (Extended Detection and Response) capabilities. In practical terms, it collects and analyses logs from across your system, detects intrusions and policy violations, monitors file integrity, and generates compliance reports — all from a single platform.</p>
+        <p>The all-in-one installation deploys three components onto a single machine:</p>
+        <div class="component-grid">
+            <div class="comp-item">
+                <div class="comp-name">Wazuh Manager</div>
+                <div class="comp-role">The core engine. Receives data from agents, processes alerts, and enforces rules.</div>
+            </div>
+            <div class="comp-item">
+                <div class="comp-name">Wazuh Indexer</div>
+                <div class="comp-role">An OpenSearch instance that stores and indexes all alert data for querying.</div>
+            </div>
+            <div class="comp-item">
+                <div class="comp-name">Wazuh Dashboard</div>
+                <div class="comp-role">A web UI (OpenSearch Dashboards) for viewing alerts, compliance reports, and agent status.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="step-card">
+        <div class="step-header"><span class="step-num">STEP 01</span><h2>Verify System Requirements</h2></div>
+        <div class="step-body">
+            <p>Wazuh is considerably more resource-intensive than a typical service because it runs a full search engine (the Indexer) alongside the Manager. The Indexer alone requires a substantial JVM heap. Check your machine meets the minimum specs before continuing:</p>
+            <div class="terminal">
+                <div class="terminal-bar"><span class="t-label">terminal</span><button class="copy-btn" onclick="copyCode(this)"><span>⎘</span> Copy</button></div>
+                <div class="terminal-code"><span class="cm"># Available RAM — the Indexer's JVM needs headroom to breathe</span>
+free -h
+
+<span class="cm"># CPU core count — parallel indexing is CPU-bound</span>
+nproc</div>
+            </div>
+            <div class="spec-grid">
+                <div class="spec-item">
+                    <div class="spec-label">Minimum RAM</div>
+                    <div class="spec-value">4 GB</div>
+                    <div class="spec-why">The Indexer (OpenSearch) alone allocates ~2 GB of JVM heap by default. Below 4 GB the installation will likely fail or the service will OOM-kill shortly after starting.</div>
+                </div>
+                <div class="spec-item">
+                    <div class="spec-label">Minimum CPU Cores</div>
+                    <div class="spec-value">2 Cores</div>
+                    <div class="spec-why">OpenSearch is heavily threaded. A single core will cause severe performance degradation during indexing and search.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="step-card">
+        <div class="step-header"><span class="step-num">STEP 02</span><h2>Download the Installer</h2></div>
+        <div class="step-body">
+            <p>Wazuh provides an official shell script that handles the full installation. Use <code>curl</code> with the <code>-sL</code> flags: <code>-s</code> suppresses the progress meter (keeps output clean) and <code>-L</code> follows redirects automatically. The <code>-o</code> flag saves it to a named file rather than printing to stdout:</p>
+            <div class="terminal">
+                <div class="terminal-bar"><span class="t-label">terminal</span><button class="copy-btn" onclick="copyCode(this)"><span>⎘</span> Copy</button></div>
+                <div class="terminal-code">curl -sL https://packages.wazuh.com/4.x/wazuh-install.sh -o wazuh-install.sh</div>
+            </div>
+            <p>Before running any downloaded script, it's good practice to confirm you actually received a shell script and not an error page. If the download was intercepted or the URL returned an error, you may get an XML document instead. A quick check:</p>
+            <div class="terminal">
+                <div class="terminal-bar"><span class="t-label">terminal</span><button class="copy-btn" onclick="copyCode(this)"><span>⎘</span> Copy</button></div>
+                <div class="terminal-code">head -1 wazuh-install.sh</div>
+            </div>
+            <p>The first line should read <code>#!/bin/bash</code>. If it starts with <code>&lt;?xml</code> instead, the download failed — delete the file and re-run the curl command above. Running an XML document as a shell script produces the "unexpected token" error you may have seen.</p>
+        </div>
+    </div>
+
+    <div class="step-card">
+        <div class="step-header"><span class="step-num">STEP 03</span><h2>Run the All-in-One Installer</h2></div>
+        <div class="step-body">
+            <p>The <code>-a</code> flag tells the script to perform an <em style="color:#5d7a96">all-in-one</em> deployment — installing and configuring the Manager, Indexer, and Dashboard on this single machine. This is the correct mode for a self-contained installation. Expect it to take 5–10 minutes as it adds the Wazuh APT repository, installs all three components, generates TLS certificates, and starts the services:</p>
+            <div class="terminal">
+                <div class="terminal-bar"><span class="t-label">terminal</span><button class="copy-btn" onclick="copyCode(this)"><span>⎘</span> Copy</button></div>
+                <div class="terminal-code">sudo bash wazuh-install.sh -a</div>
+            </div>
+            <p class="note">Do not interrupt the script once it starts. If it fails partway through, run it again with the <code>-o</code> flag to overwrite the partial installation: <code>sudo bash wazuh-install.sh -a -o</code></p>
+        </div>
+    </div>
+
+    <div class="step-card">
+        <div class="step-header"><span class="step-num">STEP 04</span><h2>Verify the Installation</h2></div>
+        <div class="step-body">
+            <p>Once the script finishes, check that the core service is running. The Manager is the heart of Wazuh — if this is healthy, the installation succeeded:</p>
+            <div class="terminal">
+                <div class="terminal-bar"><span class="t-label">terminal</span><button class="copy-btn" onclick="copyCode(this)"><span>⎘</span> Copy</button></div>
+                <div class="terminal-code">sudo systemctl status wazuh-manager</div>
+            </div>
+            <div class="status-line">
+                <div class="status-dot"></div>
+                <span>Look for <strong style="color:var(--accent-ok)">Active: active (running)</strong> in the output. If it shows <strong style="color:var(--accent-warn)">failed</strong>, check <code>journalctl -u wazuh-manager -n 50</code> for the error details.</span>
+            </div>
+            <p style="margin-top:16px;">The installer prints the dashboard URL and auto-generated admin credentials at the end of its output. The dashboard is accessible at <code>https://&lt;your-server-ip&gt;</code> on port 443. Save those credentials — they are only shown once.</p>
+        </div>
+    </div>
+
+</div>
+<script>
+function copyCode(btn) {
+    const code = btn.closest('.terminal').querySelector('.terminal-code').innerText.trim();
+    navigator.clipboard.writeText(code).then(() => {
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<span>✓</span> Copied';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.innerHTML = orig; btn.classList.remove('copied'); }, 2000);
+    });
+}
+</script>
+</body>
+</html>
